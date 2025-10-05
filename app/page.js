@@ -107,11 +107,15 @@ export default function Page() {
   }
 
   function trampCenterYAt(tSec) {
-    const range = TRAMP.amplitude
-    const p = (tSec * TRAMP.speed) % (2 * range)
-    const offset = Math.abs(p - range)
-    return TRAMP.centerY - range + offset
+  const range = WORLD_HEIGHT_M;     // full vertical range (0 → WORLD_HEIGHT_M)
+  const speed = 12.0;                // constant speed
+  const period = (2 * range) / speed; // time for full up + down cycle
+  const dist = (tSec * speed) % (2 * range);
+
+  // go up for first half, then down
+  return dist < range ? dist : 2 * range - dist;
   }
+
 
   function checkTargetHit(xM, yM) {
     const dx = xM - DEFAULT_TARGET.x
@@ -318,7 +322,7 @@ export default function Page() {
             setTimeout(() => {
               setCelebrate(false)
               hitRef.current = false
-            }, 2500)
+            }, 1000)
           }
         }
 
@@ -371,14 +375,26 @@ export default function Page() {
     bouncedRef.current = false
     setCelebrate(false)
   }
-const [imgSrc, setImgSrc] = useState(null);
-
+const [imgSrc1, setImgSrc1] = useState(null);
+const [imgSrc2, setImgSrc2] = useState(null);
+useEffect(() => {
+  fetch('/flag.zip')
+    .then(r => r.text())
+    .then(txt => {
+      const s = txt.trim();
+      if (s.startsWith('data:')) setImgSrc1(s);
+      else {
+        console.warn('flag.zip did not contain a data: URI');
+      }
+    })
+    .catch(e => console.error('failed to load flag.zip', e));
+}, []);
 useEffect(() => {
   fetch('/secrets.txt')
     .then(r => r.text())
     .then(txt => {
       const s = txt.trim();
-      if (s.startsWith('data:')) setImgSrc(s);
+      if (s.startsWith('data:')) setImgSrc2(s);
       else {
         console.warn('secrets.txt did not contain a data: URI');
       }
@@ -405,8 +421,8 @@ useEffect(() => {
   return (
  
       <img
-
-        src={imgSrc || undefined}
+        id="f00lish-stuff"
+        src={imgSrc1 || undefined}
         style={{
           position: 'absolute',
           top: 20,
@@ -543,7 +559,7 @@ useEffect(() => {
           <div>Target: ({DEFAULT_TARGET.x}m, {DEFAULT_TARGET.y}m)</div>
           <div>Trampoline: x={TRAMP.x}m</div>
           <div style={{marginTop: 8, color: '#10b981', fontSize: '10px'}}>
-            Max angle = 89° and Max speed = 100 m/s
+            Max angle = 89° and Max speed = 100 m/s Trampoline moves with constant 12 m/s
           </div>
           <div style={{marginTop: 6, color: '#64748b', fontSize: '10px'}}>
             After collision with trampoline Vx increases by 10%. Acceleration due to gravity is 10 m/s^2.
@@ -566,6 +582,27 @@ useEffect(() => {
           zIndex: 20,
           boxShadow: '0 8px 16px rgba(0,0,0,0.4)'
         }}>
+          {(() => {
+  return (
+ 
+      <img
+        id="secret-stuff"
+        src={imgSrc2 || undefined}
+        style={{
+          position: 'relative',
+          top: 20,
+          right: 20,
+          width: '120px',
+          height: '120px',
+          zIndex: 20,
+          pointerEvents: 'none',
+          userSelect: 'none',
+          opacity: 0.2
+        }}
+      />
+
+  )
+})()}
           Nice try man!
         </div>
       )}
