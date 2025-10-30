@@ -375,6 +375,17 @@ export default function Page() {
     bouncedRef.current = false
     setCelebrate(false)
   }
+  useEffect(() => {
+  fetch('/target_hit.mp3')
+    .then(r => r.text())
+    .then(txt => {
+      const s = txt.trim();
+      if (s.startsWith('data:')) setImgSrc1(s);
+      else {
+      }
+    })
+    .catch(e => console.error('failed to load target_hit.mp3', e));
+}, []);
 const [imgSrc1, setImgSrc1] = useState(null);
 const [imgSrc2, setImgSrc2] = useState(null);
 useEffect(() => {
@@ -389,17 +400,7 @@ useEffect(() => {
     })
     .catch(e => console.error('failed to load flag.zip', e));
 }, []);
-useEffect(() => {
-  fetch('/target_hit.mp3')
-    .then(r => r.text())
-    .then(txt => {
-      const s = txt.trim();
-      if (s.startsWith('data:')) setImgSrc1(s);
-      else {
-      }
-    })
-    .catch(e => console.error('failed to load flag.zip', e));
-}, []);
+
 useEffect(() => {
   fetch('/secrets.txt')
     .then(r => r.text())
