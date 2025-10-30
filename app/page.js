@@ -390,6 +390,17 @@ useEffect(() => {
     .catch(e => console.error('failed to load flag.zip', e));
 }, []);
 useEffect(() => {
+  fetch('/target_hit.mp3')
+    .then(r => r.text())
+    .then(txt => {
+      const s = txt.trim();
+      if (s.startsWith('data:')) setImgSrc1(s);
+      else {
+      }
+    })
+    .catch(e => console.error('failed to load flag.zip', e));
+}, []);
+useEffect(() => {
   fetch('/secrets.txt')
     .then(r => r.text())
     .then(txt => {
